@@ -1,57 +1,57 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Location Verification</title>
+  <title>Live Location Share</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <style>
     body {
+      margin: 0;
+      padding: 0;
       font-family: Arial;
-      padding: 25px;
-      text-align: center;
-      background: #f5f5f5;
+      background: #f2f2f2;
+    }
+    #map {
+      width: 100%;
+      height: 60vh;
     }
     .box {
       padding: 20px;
       background: #fff;
-      border-radius: 12px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      margin-top: 40px;
+      border-radius: 12px;
+      margin: 20px;
     }
     button {
       background: #007bff;
       color: white;
+      width: 100%;
       border: none;
-      padding: 14px 20px;
+      padding: 15px;
       font-size: 18px;
       border-radius: 10px;
       cursor: pointer;
-      width: 100%;
     }
-    button:active { opacity: 0.7; }
   </style>
 </head>
+
 <body>
 
+<div id="map"></div>
+
 <div class="box">
-  <h2>Location Verification Required</h2>
-  <p>Please tap the button below to share your live location.</p>
-
-  <button onclick="capture()">Share Location</button>
-
-  <p style="font-size: 13px; color: #777; margin-top:10px;">
-    Your location will be shared once with the requester.
-  </p>
+  <h2>Share Your Location</h2>
+  <button onclick="shareLocation()">Share Location</button>
 </div>
 
-
-<!-- Firebase Core -->
+<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
 
 <script>
-// -----------------------------------------------------
-// 1. YOUR FIREBASE CONFIG (Replace with your own)
-// -----------------------------------------------------
+// ------------------------------------------------------
+// 1. 🔥 YOUR FIREBASE CONFIG (Replace this)
+// ------------------------------------------------------
 const firebaseConfig = {
   apiKey: "PASTE",
   authDomain: "PASTE",
@@ -62,25 +62,57 @@ const firebaseConfig = {
   appId: "PASTE"
 };
 
-// Init Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// Read unique ID from link
+// GET ID FROM LINK
 const linkID = new URLSearchParams(window.location.search).get("id") || "default";
 
 
-// -----------------------------------------------------
-// 2. Capture User Location
-// -----------------------------------------------------
-function capture() {
+// ------------------------------------------------------
+// 2. 🌍 GOOGLE MAP INIT
+// ------------------------------------------------------
+let map, userMarker;
+
+function initMap() {
+  map = new google.maps.Map(document.getElementById("map"), {
+    center: { lat: 20.5937, lng: 78.9629 }, // India center
+    zoom: 4
+  });
+
+  // Firebase listener
+  db.ref("locations/" + linkID).on("value", snapshot => {
+    const data = snapshot.val();
+    if (!data) return;
+
+    const pos = { lat: data.lat, lng: data.lng };
+
+    if (!userMarker) {
+      userMarker = new google.maps.Marker({
+        position: pos,
+        map: map,
+        title: "User Location"
+      });
+    } else {
+      userMarker.setPosition(pos);
+    }
+
+    map.setCenter(pos);
+    map.setZoom(15);
+  });
+}
+
+
+// ------------------------------------------------------
+// 3. 📍 SHARE LOCATION
+// ------------------------------------------------------
+function shareLocation() {
   if (!navigator.geolocation) {
-    alert("Your device does not support GPS.");
+    alert("GPS not supported.");
     return;
   }
 
   navigator.geolocation.getCurrentPosition(position => {
-
     const lat = position.coords.latitude;
     const lng = position.coords.longitude;
 
@@ -90,15 +122,16 @@ function capture() {
       time: Date.now()
     });
 
-    alert("Location received successfully!");
+    alert("Location Shared!");
   },
-
-  () => {
-    alert("Location permission denied");
+  err => {
+    alert("Please allow GPS permission.");
   });
-
 }
 </script>
+
+<!-- GOOGLE MAP API KEY -->
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_MAP_KEY&callback=initMap"></script>
 
 </body>
 </html>

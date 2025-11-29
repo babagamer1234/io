@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Location Verification</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Arial;
+      padding: 25px;
+      text-align: center;
+      background: #f5f5f5;
+    }
+    .box {
+      padding: 20px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin-top: 40px;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 14px 20px;
+      font-size: 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:active { opacity: 0.7; }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>Location Verification Required</h2>
+  <p>Please tap the button below to share your live location.</p>
+
+  <button onclick="capture()">Share Location</button>
+
+  <p style="font-size: 13px; color: #777; margin-top:10px;">
+    Your location will be shared once with the requester.
+  </p>
+</div>
+
+
+<!-- Firebase Core -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+
+<script>
+// -----------------------------------------------------
+// 1. YOUR FIREBASE CONFIG (Replace with your own)
+// -----------------------------------------------------
+const firebaseConfig = {
+  apiKey: "PASTE",
+  authDomain: "PASTE",
+  databaseURL: "PASTE",
+  projectId: "PASTE",
+  storageBucket: "PASTE",
+  messagingSenderId: "PASTE",
+  appId: "PASTE"
+};
+
+// Init Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// Read unique ID from link
+const linkID = new URLSearchParams(window.location.search).get("id") || "default";
+
+
+// -----------------------------------------------------
+// 2. Capture User Location
+// -----------------------------------------------------
+function capture() {
+  if (!navigator.geolocation) {
+    alert("Your device does not support GPS.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(position => {
+
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
+
+    db.ref("locations/" + linkID).set({
+      lat: lat,
+      lng: lng,
+      time: Date.now()
+    });
+
+    alert("Location received successfully!");
+  },
+
+  () => {
+    alert("Location permission denied");
+  });
+
+}
+</script>
+
+</body>
+</html>

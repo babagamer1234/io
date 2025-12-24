@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Profile</title>
+<style>
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg,#1d2671,#c33764);
+  font-family:Arial, sans-serif;
+}
+.card{
+  background:#fff;
+  width:320px;
+  padding:25px;
+  border-radius:16px;
+  text-align:center;
+  box-shadow:0 15px 40px rgba(0,0,0,0.3);
+}
+.card img{
+  width:110px;
+  height:110px;
+  border-radius:50%;
+  border:4px solid #c33764;
+  object-fit:cover;
+}
+.card h2{
+  margin:15px 0 5px;
+}
+.card p{
+  color:#555;
+  font-size:14px;
+}
+.skills{
+  margin-top:15px;
+}
+.skills span{
+  display:inline-block;
+  background:#c33764;
+  color:#fff;
+  padding:6px 12px;
+  border-radius:20px;
+  font-size:12px;
+  margin:4px;
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <img src="https://i.imgur.com/8Km9tLL.png" alt="Profile">
+  <h2>Your Name</h2>
+  <p>Web Developer | Beginner Friendly</p>
+
+  <div class="skills">
+    <span>HTML</span>
+    <span>CSS</span>
+    <span>Basic JS</span>
+    <span>Ads Setup</span>
+  </div>
+</div>
+
+</body>
+</html>
